@@ -43,8 +43,6 @@ The inputs for `PERPS_V2_SUBMIT_OFFCHAIN_DELAYED_ORDER` is the encoding of 3 par
 `int256`: The size delta of the order to be submitted
 `uint256`: The desired fill price of the order
 
-Whereas in contrast `PERPS_V2_CANCEL_DELAYED_ORDER` has just 1 parameter encoded:
-
 `address`: The Horizon Protocol PerpsV2 Market address which has an active delayed order submitted by this account
 
 Encoding parameters in a bytes string in this way gives us maximum flexiblity to be able to support many commands which require different datatypes in a gas-efficient way.
@@ -96,13 +94,14 @@ src/
 │   │   ├── IPerpsV2ExchangeRate.sol
 │   │   ├── IPerpsV2MarketConsolidated.sol
 │   │   └── ISystemStatus.sol
-│   ├── token
-│   │   └── IERC20.sol
 └── utils
     ├── Auth.sol
     ├── Owned.sol
     ├── gelato
-    │   └── AutomateReady.sol
+    │   ├── AutomateReady.sol
+    │   └── AutomateTaskCreator.sol
+    ├── openzeppelin
+    │   └── IERC20.sol
 ```
 
 ## Usage
@@ -157,12 +156,12 @@ forge test --fork-url $(grep ARCHIVE_NODE_URL .env | cut -d '=' -f2) --match-tes
 7. Run script and deploy to Testnet
 8. Call `Factory.upgradeAccountImplementation` with new `Account` address (can be done on etherscan)
 > Only factory owner can do this
-9. Update `./deploy-addresses/optimism-goerli.json` with new `Account` address
+9. Update `./deploy-addresses/mumbai.json` with new `Account` address
 10. Ensure testnet accounts are updated and functional (ensure state is correct)
 11. Run script and deploy to Mainnet
 12. Call `Factory.upgradeAccountImplementation` with new `Account` address (can be done on etherscan)
 > Only factory owner can do this (pDAO)
-13. Update `./deploy-addresses/optimism.json` with new `Account` address
+13. Update `./deploy-addresses/bnb-mainnet.json` with new `Account` address
 14. Ensure mainnet accounts are updated and functional (ensure state is correct)
 
 ## Project Tools
