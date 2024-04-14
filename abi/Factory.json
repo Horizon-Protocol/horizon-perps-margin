@@ -1,0 +1,262 @@
+[
+    {
+        "type": "constructor",
+        "inputs": [
+            {
+                "name": "_owner",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "accounts",
+        "inputs": [
+            {
+                "name": "accounts",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "exist",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "canUpgrade",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getAccountOwner",
+        "inputs": [
+            {
+                "name": "_account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getAccountsOwnedBy",
+        "inputs": [
+            {
+                "name": "_owner",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address[]",
+                "internalType": "address[]"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "implementation",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "newAccount",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "accountAddress",
+                "type": "address",
+                "internalType": "address payable"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "owner",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "removeUpgradability",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "transferOwnership",
+        "inputs": [
+            {
+                "name": "newOwner",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "updateAccountOwnership",
+        "inputs": [
+            {
+                "name": "_newOwner",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "_oldOwner",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "upgradeAccountImplementation",
+        "inputs": [
+            {
+                "name": "_implementation",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "event",
+        "name": "AccountImplementationUpgraded",
+        "inputs": [
+            {
+                "name": "implementation",
+                "type": "address",
+                "indexed": false,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "NewAccount",
+        "inputs": [
+            {
+                "name": "creator",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "account",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "version",
+                "type": "bytes32",
+                "indexed": false,
+                "internalType": "bytes32"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "OwnershipTransferred",
+        "inputs": [
+            {
+                "name": "user",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "newOwner",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "error",
+        "name": "AccountDoesNotExist",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "AccountFailedToFetchVersion",
+        "inputs": [
+            {
+                "name": "data",
+                "type": "bytes",
+                "internalType": "bytes"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "CannotUpgrade",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "FailedToSetAcountOwner",
+        "inputs": [
+            {
+                "name": "data",
+                "type": "bytes",
+                "internalType": "bytes"
+            }
+        ]
+    }
+]

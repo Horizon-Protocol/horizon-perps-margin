@@ -34,6 +34,17 @@ import {
     MUMBAI_ADDRESS_RESOLVER
 } from "script/utils/parameters/MumbaiParameters.sol";
 
+import {
+    SEPOLIA_DEPLOYER,
+    SEPOLIA_EVENTS,
+    SEPOLIA_SETTINGS,
+    SEPOLIA_FACTORY,
+    SEPOLIA_EVENTS,
+    SEPOLIA_GELATO,
+    SEPOLIA_AUTOMATE,
+    SEPOLIA_ADDRESS_RESOLVER
+} from "script/utils/parameters/SepoliaParameters.sol";
+
 /// @title Script to upgrade the Account implementation
 
 /// @dev steps to deploy and verify on BNB:
@@ -117,6 +128,44 @@ contract UpgradeAccountMumbai is Script {
             gelato: MUMBAI_GELATO,
             automate: MUMBAI_AUTOMATE,
             settings: MUMBAI_SETTINGS
+        });
+
+        implementation = address(new Account(params));
+    }
+}
+
+contract UpgradeAccountSepolia is Script {
+    function run() public {
+        uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
+
+        upgrade();
+
+        vm.stopBroadcast();
+    }
+
+    function upgrade() public returns (address implementation) {
+        IAddressResolver addressResolver =
+            IAddressResolver(SEPOLIA_ADDRESS_RESOLVER);
+
+        address marginAsset = addressResolver.getAddress({name: PROXY_SUSD});
+        address perpsV2ExchangeRate =
+            addressResolver.getAddress({name: PERPS_V2_EXCHANGE_RATE});
+        address futuresMarketManager =
+            addressResolver.getAddress({name: FUTURES_MARKET_MANAGER});
+        address systemStatus = addressResolver.getAddress({name: SYSTEM_STATUS});
+
+        IAccount.AccountConstructorParams memory params = IAccount
+            .AccountConstructorParams({
+            factory: SEPOLIA_FACTORY,
+            events: SEPOLIA_EVENTS,
+            marginAsset: marginAsset,
+            perpsV2ExchangeRate: perpsV2ExchangeRate,
+            futuresMarketManager: futuresMarketManager,
+            systemStatus: systemStatus,
+            gelato: SEPOLIA_GELATO,
+            automate: SEPOLIA_AUTOMATE,
+            settings: SEPOLIA_SETTINGS
         });
 
         implementation = address(new Account(params));

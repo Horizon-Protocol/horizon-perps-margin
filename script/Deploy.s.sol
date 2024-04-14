@@ -30,6 +30,14 @@ import {
     MUMBAI_AUTOMATE
 } from "script/utils/parameters/MumbaiParameters.sol";
 
+import {
+    SEPOLIA_DEPLOYER,
+    SEPOLIA_ADMIN_DAO_MULTI_SIG,
+    SEPOLIA_ADDRESS_RESOLVER,
+    SEPOLIA_GELATO,
+    SEPOLIA_AUTOMATE
+} from "script/utils/parameters/SepoliaParameters.sol";
+
 /// @title Script to deploy Horizon Protocol Margin Account Factory
 contract Setup {
     function deploySystem(
@@ -128,6 +136,26 @@ contract DeployMumbai is Script, Setup {
             _addressResolver: MUMBAI_ADDRESS_RESOLVER,
             _gelato: MUMBAI_GELATO,
             _automate: MUMBAI_AUTOMATE
+        });
+
+        vm.stopBroadcast();
+    }
+}
+
+/// @dev steps to deploy and verify on Sepolia:
+/// (1) load the variables in the .env file via `source .env`
+/// (2) run `forge script script/Deploy.s.sol:DeploySepolia --rpc-url $ARCHIVE_NODE_URL_GOERLI_L2 --broadcast --verify -vvvv`
+contract DeploySepolia is Script, Setup {
+    function run() public {
+        uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
+
+        Setup.deploySystem({
+            _deployer: SEPOLIA_DEPLOYER,
+            _owner: SEPOLIA_ADMIN_DAO_MULTI_SIG,
+            _addressResolver: SEPOLIA_ADDRESS_RESOLVER,
+            _gelato: SEPOLIA_GELATO,
+            _automate: SEPOLIA_AUTOMATE
         });
 
         vm.stopBroadcast();

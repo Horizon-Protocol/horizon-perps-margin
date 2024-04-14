@@ -630,13 +630,15 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         returns (ModuleData memory moduleData)
     {
         moduleData =
-            ModuleData({modules: new Module[](1), args: new bytes[](1)});
+            ModuleData({modules: new Module[](2), args: new bytes[](2)});
 
         moduleData.modules[0] = Module.RESOLVER;
+        moduleData.modules[1] = Module.PROXY;
 
         moduleData.args[0] = _resolverModuleArg(
             address(this), abi.encodeCall(this.checker, conditionalOrderId)
         );
+        moduleData.args[1] = _proxyModuleArg();
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -772,14 +774,8 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
     /// @return fee amount paid
     function _payExecutorFee() internal returns (uint256 fee) {
         address feeToken;
-        if (msg.sender == address(automate)) {
-            (fee, feeToken) = automate.getFeeDetails();
-            _transfer({_fee: fee, _feeToken: feeToken});
-        } else {
-            fee = SETTINGS.executorFee();
-            (bool success,) = msg.sender.call{value: fee}("");
-            if (!success) revert CannotPayExecutorFee(fee, msg.sender);
-        }
+        (fee, feeToken) = _getFeeDetails();
+        _transfer(fee, feeToken);
     }
 
     /// @notice order logic condition checker
