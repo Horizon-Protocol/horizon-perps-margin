@@ -134,6 +134,7 @@ contract UpgradeAccountMumbai is Script {
     }
 }
 
+/// (2) run `forge script script/upgrades/Upgrade.s.sol:UpgradeAccountSepolia --rpc-url $ARCHIVE_NODE_URL_SEPOLIA --broadcast --verify -vvvv`
 contract UpgradeAccountSepolia is Script {
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");

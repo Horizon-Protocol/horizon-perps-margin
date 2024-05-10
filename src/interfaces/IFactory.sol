@@ -19,6 +19,9 @@ interface IFactory {
     /// @param implementation: address of new implementation
     event AccountImplementationUpgraded(address implementation);
 
+    /// @notice emitted when implementation is made non-upgradable
+    event RemovedUpgradability();
+
     /*//////////////////////////////////////////////////////////////
                                  ERRORS
     //////////////////////////////////////////////////////////////*/

@@ -16,10 +16,13 @@ import {IPerpsV2ExchangeRate} from
 import {AutomateTaskCreator} from "src/utils/gelato/AutomateTaskCreator.sol";
 import "src/utils/gelato/Types.sol";
 import {IERC20} from "src/utils/openzeppelin/IERC20.sol";
+import {SafeERC20} from "src/utils/openzeppelin/SafeERC20.sol";
 
 /// @title Horizon Protocol Margin Account Implementation
 /// @notice flexible margin account enabling users to trade on-chain derivatives
 contract Account is IAccount, Auth, AutomateTaskCreator {
+    using SafeERC20 for IERC20;
+
     /*//////////////////////////////////////////////////////////////
                                CONSTANTS
     //////////////////////////////////////////////////////////////*/
@@ -225,6 +228,8 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
 
     /// @inheritdoc Auth
     function transferOwnership(address _newOwner) public override {
+        require(_newOwner != address(0));
+
         // will revert if msg.sender is *NOT* owner
         super.transferOwnership(_newOwner);
 
@@ -447,6 +452,8 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
     /// @notice allow users to withdraw ETH deposited for keeper fees
     /// @param _amount: amount to withdraw
     function _withdrawEth(uint256 _amount) internal {
+        require(_amount <= address(this).balance);
+
         if (_amount > 0) {
             (bool success,) = payable(msg.sender).call{value: _amount}("");
             if (!success) revert EthWithdrawalFailed();
@@ -461,7 +468,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         // if amount is positive, deposit
         if (_amount > 0) {
             /// @dev failed Horizon Protocol asset transfer will revert and not return false if unsuccessful
-            MARGIN_ASSET.transferFrom(msg.sender, address(this), _abs(_amount));
+            MARGIN_ASSET.safeTransferFrom(msg.sender, address(this), _abs(_amount));
 
             EVENTS.emitDeposit({user: msg.sender, amount: _abs(_amount)});
         } else if (_amount < 0) {
@@ -469,7 +476,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
             _sufficientMargin(_amount);
 
             /// @dev failed Horizon Protocol asset transfer will revert and not return false if unsuccessful
-            MARGIN_ASSET.transfer(msg.sender, _abs(_amount));
+            MARGIN_ASSET.safeTransfer(msg.sender, _abs(_amount));
 
             EVENTS.emitWithdraw({user: msg.sender, amount: _abs(_amount)});
         }
@@ -658,7 +665,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
 
         // cancel gelato task
         /// @dev will revert if task id does not exist {Automate.cancelTask: Task not found}
-        automate.cancelTask({taskId: conditionalOrder.gelatoTaskId});
+        _cancelTask(conditionalOrder.gelatoTaskId);
 
         // delete order from conditional orders
         delete conditionalOrders[_conditionalOrderId];
@@ -701,7 +708,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         // remove gelato task from their accounting
         /// @dev will revert if task id does not exist {Automate.cancelTask: Task not found}
         /// @dev if executor is not Gelato, the task will still be cancelled
-        automate.cancelTask({taskId: conditionalOrder.gelatoTaskId});
+        _cancelTask(conditionalOrder.gelatoTaskId);
 
         // impose and record fee paid to executor
         uint256 fee = _payExecutorFee();
@@ -775,7 +782,15 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
     function _payExecutorFee() internal returns (uint256 fee) {
         address feeToken;
         (fee, feeToken) = _getFeeDetails();
-        _transfer(fee, feeToken);
+
+        if (fee != 0 && feeToken != address(0)) {
+            _transfer(fee, feeToken);
+        }
+        else {
+            fee = SETTINGS.executorFee();
+            (bool success,) = msg.sender.call{value: fee}("");
+            if (!success) revert CannotPayExecutorFee(fee, msg.sender);
+        }
     }
 
     /// @notice order logic condition checker

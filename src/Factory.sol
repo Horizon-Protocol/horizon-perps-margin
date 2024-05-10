@@ -154,5 +154,6 @@ contract Factory is IFactory, Owned {
     /// @inheritdoc IFactory
     function removeUpgradability() external override onlyOwner {
         canUpgrade = false;
+        emit RemovedUpgradability();
     }
 }
