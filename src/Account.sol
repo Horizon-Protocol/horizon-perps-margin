@@ -228,7 +228,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
 
     /// @inheritdoc Auth
     function transferOwnership(address _newOwner) public override {
-        require(_newOwner != address(0));
+        require(_newOwner != address(0), "New owner cannot be a zero address");
 
         // will revert if msg.sender is *NOT* owner
         super.transferOwnership(_newOwner);
@@ -452,7 +452,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
     /// @notice allow users to withdraw ETH deposited for keeper fees
     /// @param _amount: amount to withdraw
     function _withdrawEth(uint256 _amount) internal {
-        require(_amount <= address(this).balance);
+        require(_amount <= address(this).balance, "Insufficient ETH balance");
 
         if (_amount > 0) {
             (bool success,) = payable(msg.sender).call{value: _amount}("");
@@ -468,9 +468,9 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         // if amount is positive, deposit
         if (_amount > 0) {
             /// @dev failed Horizon Protocol asset transfer will revert and not return false if unsuccessful
-            MARGIN_ASSET.safeTransferFrom(msg.sender, address(this), _abs(_amount));
+            MARGIN_ASSET.safeTransferFrom(msg.sender, address(this), _amount);
 
-            EVENTS.emitDeposit({user: msg.sender, amount: _abs(_amount)});
+            EVENTS.emitDeposit({user: msg.sender, amount: _amount});
         } else if (_amount < 0) {
             // if amount is negative, withdraw
             _sufficientMargin(_amount);
@@ -580,7 +580,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         // if more margin is desired on the position we must commit the margin
         if (_marginDelta > 0) {
             _sufficientMargin(_marginDelta);
-            committedMargin += _abs(_marginDelta);
+            committedMargin += _marginDelta;
         }
 
         // create and submit Gelato task for this conditional order
@@ -660,7 +660,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
 
         // if margin was committed, free it
         if (conditionalOrder.marginDelta > 0) {
-            committedMargin -= _abs(conditionalOrder.marginDelta);
+            committedMargin -= conditionalOrder.marginDelta;
         }
 
         // cancel gelato task
@@ -788,6 +788,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         }
         else {
             fee = SETTINGS.executorFee();
+            require(fee <= address(this).balance, "Insufficient balance for executor fees");
             (bool success,) = msg.sender.call{value: fee}("");
             if (!success) revert CannotPayExecutorFee(fee, msg.sender);
         }

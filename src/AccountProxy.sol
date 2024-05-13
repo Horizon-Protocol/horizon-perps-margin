@@ -64,7 +64,7 @@ contract AccountProxy is IAccountProxy {
     /// @return implementation address (i.e. the account logic address)
     function _implementation() internal returns (address implementation) {
         (bool success, bytes memory data) =
-            _beacon().call(abi.encodeWithSignature("implementation()"));
+            _beacon().staticcall(abi.encodeWithSignature("implementation()"));
         if (!success) revert BeaconCallFailed();
         implementation = abi.decode(data, (address));
         if (implementation == address(0)) revert ImplementationNotSet();
