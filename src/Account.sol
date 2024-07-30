@@ -468,9 +468,9 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         // if amount is positive, deposit
         if (_amount > 0) {
             /// @dev failed Horizon Protocol asset transfer will revert and not return false if unsuccessful
-            MARGIN_ASSET.safeTransferFrom(msg.sender, address(this), _amount);
+            MARGIN_ASSET.safeTransferFrom(msg.sender, address(this), _abs(_amount));
 
-            EVENTS.emitDeposit({user: msg.sender, amount: _amount});
+            EVENTS.emitDeposit({user: msg.sender, amount: _abs(_amount)});
         } else if (_amount < 0) {
             // if amount is negative, withdraw
             _sufficientMargin(_amount);
@@ -580,7 +580,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         // if more margin is desired on the position we must commit the margin
         if (_marginDelta > 0) {
             _sufficientMargin(_marginDelta);
-            committedMargin += _marginDelta;
+            committedMargin += _abs(_marginDelta);
         }
 
         // create and submit Gelato task for this conditional order
@@ -660,7 +660,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
 
         // if margin was committed, free it
         if (conditionalOrder.marginDelta > 0) {
-            committedMargin -= conditionalOrder.marginDelta;
+            committedMargin -= _abs(conditionalOrder.marginDelta);
         }
 
         // cancel gelato task
