@@ -87,6 +87,13 @@ interface IAccount {
         bool reduceOnly;
         bytes32 trackingCode;
     }
+    
+    struct Rates {
+        bytes32 marketKey;
+        uint256 price;
+        PriceOracleUsed priceOracle;
+    }
+
     /// @dev see example below elucidating targtPrice vs desiredFillPrice:
     /// 1. targetPrice met (ex: targetPrice = X)
     /// 2. account submits delayed order to Horizon Protocol PerpsV2 with desiredFillPrice = Y

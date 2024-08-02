@@ -28,7 +28,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IAccount
-    bytes32 public constant VERSION = "1.0.0";
+    bytes32 public constant VERSION = "1.1.0";
 
     /// @notice used to ensure the pyth provided price is sufficiently recent
     /// @dev price cannot be older than MAX_PRICE_LATENCY seconds
@@ -210,6 +210,50 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
             _zUSDRate(_getPerpsV2Market(conditionalOrder.marketKey));
 
         return _validStopOrder(conditionalOrder, price);
+    }
+
+    function zUSDRates()
+        public
+        view
+        returns (Rates[] memory)
+    {   
+        IFuturesMarketManager.MarketSummary[] memory summary = FUTURES_MARKET_MANAGER.allMarketSummaries();
+        uint256 length = summary.length;
+        Rates[] memory rates = new Rates[](length);
+
+        for(uint256 i = 0; i < length; i++) {
+            /// @dev if marketKey is invalid, this will revert
+            (uint256 _price, PriceOracleUsed _priceOracle) = _zUSDRate(_getPerpsV2Market(summary[i].marketKey));
+            rates[i] = Rates({
+                marketKey: summary[i].marketKey,
+                price: _price,
+                priceOracle: _priceOracle
+            });
+        }
+
+        return rates;
+    }
+
+    function zUSDRates2(bytes32[] memory marketKeys)
+        public
+        view
+        returns (Rates[] memory)
+    {   
+        // IFuturesMarketManager.MarketSummary[] memory summary = FUTURES_MARKET_MANAGER.allMarketSummaries();
+        uint256 length = marketKeys.length;
+        Rates[] memory rates = new Rates[](length);
+
+        for(uint256 i = 0; i < length; i++) {
+            /// @dev if marketKey is invalid, this will revert
+            (uint256 _price, PriceOracleUsed _priceOracle) = _zUSDRate(_getPerpsV2Market(marketKeys[i]));
+            rates[i] = Rates({
+                marketKey: marketKeys[i],
+                price: _price,
+                priceOracle: _priceOracle
+            });
+        }
+
+        return rates;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -584,7 +628,8 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         }
 
         // create and submit Gelato task for this conditional order
-        bytes32 taskId = _createGelatoTask();
+        // Gelato tasks are no longer created on-chain
+        bytes32 taskId;
 
         // internally store the conditional order
         conditionalOrders[conditionalOrderId] = ConditionalOrder({
@@ -614,40 +659,6 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         ++conditionalOrderId;
     }
 
-    /// @notice create a new Gelato task for a conditional order
-    /// @return taskId of the new Gelato task
-    function _createGelatoTask() internal returns (bytes32 taskId) {
-        ModuleData memory moduleData = _createGelatoModuleData();
-
-        taskId = _createTask({
-            _execAddress: address(this),
-            _execDataOrSelector: abi.encodeCall(
-                this.executeConditionalOrder, conditionalOrderId
-                ),
-            _moduleData: moduleData,
-            _feeToken: ETH
-        });
-    }
-
-    /// @notice create the Gelato ModuleData for a conditional order
-    /// @dev see IAutomate for details on the task creation and the ModuleData struct
-    function _createGelatoModuleData()
-        internal
-        view
-        returns (ModuleData memory moduleData)
-    {
-        moduleData =
-            ModuleData({modules: new Module[](2), args: new bytes[](2)});
-
-        moduleData.modules[0] = Module.RESOLVER;
-        moduleData.modules[1] = Module.PROXY;
-
-        moduleData.args[0] = _resolverModuleArg(
-            address(this), abi.encodeCall(this.checker, conditionalOrderId)
-        );
-        moduleData.args[1] = _proxyModuleArg();
-    }
-
     /*//////////////////////////////////////////////////////////////
                         CANCEL CONDITIONAL ORDER
     //////////////////////////////////////////////////////////////*/
@@ -665,7 +676,10 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
 
         // cancel gelato task
         /// @dev will revert if task id does not exist {Automate.cancelTask: Task not found}
-        _cancelTask(conditionalOrder.gelatoTaskId);
+        // Gelato tasks are no longer created on-chain, Cancel all existing tasks
+        if (conditionalOrder.gelatoTaskId != bytes32(0)) {
+            _cancelTask(conditionalOrder.gelatoTaskId);
+        }
 
         // delete order from conditional orders
         delete conditionalOrders[_conditionalOrderId];
@@ -708,7 +722,10 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         // remove gelato task from their accounting
         /// @dev will revert if task id does not exist {Automate.cancelTask: Task not found}
         /// @dev if executor is not Gelato, the task will still be cancelled
-        _cancelTask(conditionalOrder.gelatoTaskId);
+        // Gelato tasks are no longer created on-chain, Cancel all existing tasks
+        if (conditionalOrder.gelatoTaskId != bytes32(0)) {
+            _cancelTask(conditionalOrder.gelatoTaskId);
+        }
 
         // impose and record fee paid to executor
         uint256 fee = _payExecutorFee();
