@@ -228,4 +228,10 @@ interface IAccount {
     /// @dev currently only supports conditional order submission via PERPS_V2_SUBMIT_OFFCHAIN_DELAYED_ORDER COMMAND
     /// @param _conditionalOrderId: key for an active conditional order
     function executeConditionalOrder(uint256 _conditionalOrderId) external;
+
+    /// @notice execute queued conditional order
+    /// @dev currently only supports conditional order submission via PERPS_V2_SUBMIT_OFFCHAIN_DELAYED_ORDER COMMAND
+    /// @param _conditionalOrderId: key for an active conditional order
+    /// @param _paymentReceiver: payment receiver for the executor
+    function executeConditionalOrderWithPaymentReceiver(uint256 _conditionalOrderId, address _paymentReceiver) external;
 }

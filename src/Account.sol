@@ -234,28 +234,6 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         return rates;
     }
 
-    function zUSDRates2(bytes32[] memory marketKeys)
-        public
-        view
-        returns (Rates[] memory)
-    {   
-        // IFuturesMarketManager.MarketSummary[] memory summary = FUTURES_MARKET_MANAGER.allMarketSummaries();
-        uint256 length = marketKeys.length;
-        Rates[] memory rates = new Rates[](length);
-
-        for(uint256 i = 0; i < length; i++) {
-            /// @dev if marketKey is invalid, this will revert
-            (uint256 _price, PriceOracleUsed _priceOracle) = _zUSDRate(_getPerpsV2Market(marketKeys[i]));
-            rates[i] = Rates({
-                marketKey: marketKeys[i],
-                price: _price,
-                priceOracle: _priceOracle
-            });
-        }
-
-        return rates;
-    }
-
     /*//////////////////////////////////////////////////////////////
                                OWNERSHIP
     //////////////////////////////////////////////////////////////*/
@@ -703,6 +681,20 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         nonReentrant
         isAccountExecutionEnabled
     {
+        _executeConditionalOrder(_conditionalOrderId, msg.sender);
+    }
+
+    /// @inheritdoc IAccount
+    function executeConditionalOrderWithPaymentReceiver(uint256 _conditionalOrderId, address _paymentReceiver)
+        external
+        override
+        nonReentrant
+        isAccountExecutionEnabled
+    {
+        _executeConditionalOrder(_conditionalOrderId, _paymentReceiver);
+    }
+
+    function _executeConditionalOrder(uint256 _conditionalOrderId, address _paymentReceiver) internal {
         // verify conditional order is ready for execution
         /// @dev it is understood this is a duplicate check if the executor is Gelato
         if (!_validConditionalOrder(_conditionalOrderId)) {
@@ -728,7 +720,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         }
 
         // impose and record fee paid to executor
-        uint256 fee = _payExecutorFee();
+        uint256 fee = _payExecutorFee(_paymentReceiver);
 
         // define Horizon Protocol PerpsV2 market
         IPerpsV2MarketConsolidated market =
@@ -791,12 +783,14 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
             keeperFee: fee,
             priceOracle: priceOracle
         });
+
     }
+
 
     /// @notice pay fee for conditional order execution
     /// @dev fee will be different depending on executor
     /// @return fee amount paid
-    function _payExecutorFee() internal returns (uint256 fee) {
+    function _payExecutorFee(address _paymentReceiver) internal returns (uint256 fee) {
         address feeToken;
         (fee, feeToken) = _getFeeDetails();
 
@@ -806,8 +800,8 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         else {
             fee = SETTINGS.executorFee();
             require(fee <= address(this).balance, "Insufficient balance for executor fees");
-            (bool success,) = msg.sender.call{value: fee}("");
-            if (!success) revert CannotPayExecutorFee(fee, msg.sender);
+            (bool success,) = _paymentReceiver.call{value: fee}("");
+            if (!success) revert CannotPayExecutorFee(fee, _paymentReceiver);
         }
     }
 
