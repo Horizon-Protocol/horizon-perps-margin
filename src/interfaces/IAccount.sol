@@ -86,6 +86,7 @@ interface IAccount {
         uint256 desiredFillPrice;
         bool reduceOnly;
         bytes32 trackingCode;
+        uint256 creationTime;
     }
     
     struct Rates {

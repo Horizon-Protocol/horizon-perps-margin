@@ -619,7 +619,8 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
             conditionalOrderType: _conditionalOrderType,
             desiredFillPrice: _desiredFillPrice,
             reduceOnly: _reduceOnly,
-            trackingCode: _trackingCode
+            trackingCode: _trackingCode,
+            creationTime: block.timestamp
         });
 
         EVENTS.emitConditionalOrderPlaced({
