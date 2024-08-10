@@ -20,7 +20,7 @@ import {
     BNB_SETTINGS,
     BNB_ADDRESS_RESOLVER,
     PERPS_V2_EXCHANGE_RATE,
-    PROXY_SUSD,
+    PROXY_ZUSD,
     SYSTEM_STATUS
 } from "script/utils/parameters/BNBParameters.sol";
 import {
@@ -66,9 +66,9 @@ contract UpgradeAccountBNB is Script {
             IAddressResolver(BNB_ADDRESS_RESOLVER);
 
         // deploy events
-        address events = address(new Events({_factory: BNB_FACTORY}));
+        // address events = address(new Events({_factory: BNB_FACTORY}));
 
-        address marginAsset = addressResolver.getAddress({name: PROXY_SUSD});
+        address marginAsset = addressResolver.getAddress({name: PROXY_ZUSD});
         address perpsV2ExchangeRate =
             addressResolver.getAddress({name: PERPS_V2_EXCHANGE_RATE});
         address futuresMarketManager =
@@ -78,7 +78,7 @@ contract UpgradeAccountBNB is Script {
         IAccount.AccountConstructorParams memory params = IAccount
             .AccountConstructorParams({
             factory: BNB_FACTORY,
-            events: events,
+            events: BNB_EVENTS,
             marginAsset: marginAsset,
             perpsV2ExchangeRate: perpsV2ExchangeRate,
             futuresMarketManager: futuresMarketManager,
@@ -110,7 +110,7 @@ contract UpgradeAccountMumbai is Script {
         IAddressResolver addressResolver =
             IAddressResolver(MUMBAI_ADDRESS_RESOLVER);
 
-        address marginAsset = addressResolver.getAddress({name: PROXY_SUSD});
+        address marginAsset = addressResolver.getAddress({name: PROXY_ZUSD});
         address perpsV2ExchangeRate =
             addressResolver.getAddress({name: PERPS_V2_EXCHANGE_RATE});
         address futuresMarketManager =
@@ -149,7 +149,7 @@ contract UpgradeAccountSepolia is Script {
         IAddressResolver addressResolver =
             IAddressResolver(SEPOLIA_ADDRESS_RESOLVER);
 
-        address marginAsset = addressResolver.getAddress({name: PROXY_SUSD});
+        address marginAsset = addressResolver.getAddress({name: PROXY_ZUSD});
         address perpsV2ExchangeRate =
             addressResolver.getAddress({name: PERPS_V2_EXCHANGE_RATE});
         address futuresMarketManager =

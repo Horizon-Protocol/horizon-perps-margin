@@ -76,6 +76,7 @@ interface IAccount {
     /// desiredFillPrice: desired price to fill Horizon Protocol PerpsV2 order at execution time
     /// reduceOnly: if true, only allows position's absolute size to decrease
     /// trackingCode: trackingCode of the exchange
+    /// creationTime: creation time of the order
     struct ConditionalOrder {
         bytes32 marketKey;
         int256 marginDelta;

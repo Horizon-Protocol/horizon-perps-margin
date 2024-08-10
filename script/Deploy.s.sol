@@ -17,7 +17,7 @@ import {
     BNB_ADDRESS_RESOLVER,
     BNB_GELATO,
     BNB_AUTOMATE,
-    PROXY_SUSD,
+    PROXY_ZUSD,
     PERPS_V2_EXCHANGE_RATE,
     FUTURES_MARKET_MANAGER,
     SYSTEM_STATUS
@@ -77,7 +77,7 @@ contract Setup {
             .AccountConstructorParams({
             factory: address(factory),
             events: address(events),
-            marginAsset: addressResolver.getAddress({name: PROXY_SUSD}),
+            marginAsset: addressResolver.getAddress({name: PROXY_ZUSD}),
             perpsV2ExchangeRate: addressResolver.getAddress({
                 name: PERPS_V2_EXCHANGE_RATE
             }),

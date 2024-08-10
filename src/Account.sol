@@ -655,7 +655,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
 
         // cancel gelato task
         /// @dev will revert if task id does not exist {Automate.cancelTask: Task not found}
-        // Gelato tasks are no longer created on-chain, Cancel all existing tasks
+        // Gelato tasks are no longer created on-chain, Cancel all existing on-chain tasks
         if (conditionalOrder.gelatoTaskId != bytes32(0)) {
             _cancelTask(conditionalOrder.gelatoTaskId);
         }
@@ -715,7 +715,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
         // remove gelato task from their accounting
         /// @dev will revert if task id does not exist {Automate.cancelTask: Task not found}
         /// @dev if executor is not Gelato, the task will still be cancelled
-        // Gelato tasks are no longer created on-chain, Cancel all existing tasks
+        // Gelato tasks are no longer created on-chain, Cancel all existing on-chain tasks
         if (conditionalOrder.gelatoTaskId != bytes32(0)) {
             _cancelTask(conditionalOrder.gelatoTaskId);
         }
@@ -784,9 +784,7 @@ contract Account is IAccount, Auth, AutomateTaskCreator {
             keeperFee: fee,
             priceOracle: priceOracle
         });
-
     }
-
 
     /// @notice pay fee for conditional order execution
     /// @dev fee will be different depending on executor
